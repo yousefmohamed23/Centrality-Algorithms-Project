@@ -1,0 +1,214 @@
+[6:33 PM, 7/2/2019] Yousef Maaty: #include <iostream>
+#include <math.h>
+#include <vector>
+#include <list>
+#include <queue>
+#include <stack>
+#include <set>
+#include <new>
+#include <iterator>
+#include <utility>
+#include <iomanip> 
+#define INF 500000
+
+using namespace std;
+
+
+void dijkstra_with_set( vector<list< pair<int, int> > > &adj_list , int source ,vector<list<int>> &pervious, vector<vector<float>> &distance  , int n 
+		/vector<vector<int> > &num_of_short_path/)
+	{
+		multiset<pair<int,int> > setadj; // store nodes which explored
+		//vector<list<int>> pertemp(n);
+		//all distances = inf 
+		for(int i=0 ; i<n ;i++)
+		{
+			distance[source][i]=INF;
+		}
+
+		setadj.insert(make_pair(0,source)); // first is weight , second is node
+		distance[source][source]=0; // distance of source =0
+		int current_visited;
+		while( ! setadj.empty())
+		{
+			pair<int , int > temp = *(setadj.begin()); // get first element from set which is the minimum 
+			setadj.erase(temp); // remove this element 
+			current_visited = temp.second; //get node which will explore its neighbours 
+
+			list<pair<int,int> >:: iterator itr;
+			//explore unvisited neighbour
+			for(itr = adj_list[current_visited].begin(); itr !=adj_list[current_visited].end(); itr++)
+			{
+			
+				int explored_node = (*itr).first; //get the node
+				int weight= (*itr).second; // get the weight between 2 nodes
+				int new_dis=distance[source][current_visited] + weight;
+				if(distance[source][explored_node] > new_dis)
+				{
+					//If v is in set, update its distance
+					  // in set by removing it first, then
+					   //inserting with new distance
+					if(distance[source][explored_node] != INF)
+					{
+						setadj.erase(setadj.find(make_pair(distance[source][explored_node] , explored_node)));
+						pervious[explored_node].clear();
+					}
+					//pertemp[explored_node].push_back(current_visited);
+					pervious[explored_node].push_back(current_visited);
+					distance[source][explored_node]=new_dis; //update distance
+					int x = distance[source][explored_node];
+					//num_of_short_path[source][explored_node]++;
+					setadj.insert(make_pair(distance[source][explored_node] , explored_node)); // insert in list 
+				}
+				else if(distance[source][explored_node] == new_dis)
+				{
+					//pertemp[explored_node].push_back(current_visited);
+					pervious[explored_node].push_back(current_visited);
+					//num_of_short_path[source][explored_node]++;
+					//n2s n7ot al node dyh f al pervious 
+				}
+
+
+			}
+		}
+	}
+
+
+
+
+void addedge(int a , int b, int c, vector<list< pair<int, int> > > &adj_list)
+	{
+		adj_list[a].push_back(make_pair(b,c));
+		adj_list[b].push_back(make_pair(a,c));
+	}
+	
+	int main()
+	{
+		int n , m ;
+		//number f nodes    // number of edges 
+		cin>>n>>m;
+		vector<list< pair<int, int> > >adj_list(n);
+		for(int i=0 ; i<m ;i++)
+		{
+			int a , b , c;
+			cin>>a>>b>>c;
+			addedge(a,b,c,adj_list);
+		}
+
+
+
+		/*****************************************/
+		/*
+		//Degree centrality
+		
+		vector<int> degree_centrality(n);
+	
+		for(int i=0 ; i <n ; i++)
+		{	    
+			degree_centrality[i] = adj_list[i].size();
+			cout<<degree_centrality[i]<<"\n";	
+		}*/
+		
+		
+		/*******************************/
+		vector<vector<float> > distance(n,vector<float>(n));	
+		//vector<list<int>> previous(n);
+
+		vector<float> Closeness_centrality(n);  
+	
+
+		for(int i = 0 ; i<n ; i++)
+		{
+			vector<list<int>> previous(n);
+			dijkstra_with_set(adj_list, i,previous,distance,n);
+			float sum=0;
+			for(int j=0 ; j<n ; j++)
+			{    
+				sum=sum+distance[i][j];
+			}
+			Closeness_centrality[i]=(n-1)/sum;
+			cout<<fixed<<setprecision(9)<<Closeness_centrality[i]<<"\n";
+		}
+		return 0;
+}
+[6:33 PM, 7/2/2019] Yousef Maaty: float number_of_path(int src , int tar , vector<list<int>> &previous , int node)
+{
+	stack<int> prev; // for storing all previous state of each node in it 
+	//stack<int> path; //for storing path 
+	list<int>::iterator itr ;
+	int path_counter=0;
+	int node_counter=0;
+	bool is_empty=false;
+	bool flag_node_in_path=false;
+	int temp =tar;
+	//path.push(tar);
+	for(itr=previous[temp].begin(); itr != previous[temp].end(); itr++)
+	{
+	    
+		prev.push(*itr); // kda al stack feh 3
+		if(*itr == node)
+		{
+			flag_node_in_path=true;
+		}
+    
+	}
+	while(!prev.empty())
+	{
+		if(prev.top() != src)
+		{
+			temp = prev.top();
+			//path.push(temp);
+			prev.pop();
+		}
+		else if(prev.top() == src)
+		{
+			path_counter++;
+			//path.push(prev.top());
+			prev.pop();
+		/*	while(!path.empty())
+			{
+			    if(path.top() == node)
+			    {
+			        flag_node_in_path=true;
+			        node_counter++;
+			        break;
+			    }
+			    else
+			    {
+			        flag_node_in_path=false;
+			        path.pop();
+			    }
+			}
+			*/
+			
+			if(!prev.empty())
+			
+			{
+			    temp=prev.top();
+			   // path.push(temp);
+			    prev.pop();
+			}
+			else
+			{
+			    is_empty=true;
+			}
+		}
+		if(is_empty == 1) break;
+		for(itr=previous[temp].begin(); itr != previous[temp].end(); itr++)
+		{
+			prev.push(*itr);
+			if(*itr == node)
+			{
+				flag_node_in_path=true;
+			}
+		}
+	}
+	if(flag_node_in_path == true)
+	{
+		float bet_ratio = previous[node].size() / float(path_counter)  ;
+		return bet_ratio;
+	}
+	else
+	{
+		return 0 ; 
+	}
+}

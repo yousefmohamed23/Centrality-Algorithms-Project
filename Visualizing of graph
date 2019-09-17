@@ -1,0 +1,35 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+
+
+G=nx.read_weighted_edgelist('doc.txt',create_using=nx.Graph(),nodetype=int)
+
+
+
+
+#n=int(input("enter nodes number"))
+#m=int(input("enter edge number"))
+
+#a={}
+#b={}
+#c={}  #weights
+#G=nx.Graph()
+#i=0
+#for i in range(m):
+#  a[i]=int(input())
+ # b[i]=int(input())
+ # c[i]=int(input())
+  #G.add_edge(a[i],b[i],weight=c[i])
+
+
+d = dict(G.degree)
+pos = nx.spring_layout(G)
+plt.figure()    
+nx.draw(G,pos,edge_color='black',width=1,linewidths=1,\
+nodelist=d.keys(),node_size=[v * 200 for v in d.values()],node_color='pink',alpha=0.9,\
+labels={node:node for node in G.nodes()})
+
+labels = nx.get_edge_attributes(G,'weight')
+nx.draw_networkx_edge_labels(G,pos,edge_labels=labels)
+plt.axis('off')
+plt.savefig("proj")
